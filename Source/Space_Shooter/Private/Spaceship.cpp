@@ -30,6 +30,8 @@ ASpaceship::ASpaceship()
 	FireRate = 0.25f;
 	LastFireTime = -FireRate;
 
+	AutoPossessPlayer = EAutoReceiveInput::Player0;
+
 
 	CollisionBox->OnComponentBeginOverlap.AddDynamic(this, &ASpaceship::OnBeginOverlap);
 }
@@ -87,8 +89,10 @@ void ASpaceship::MoveRight(float Value)
 
 void ASpaceship::FireProjectile()
 {
+	GEngine->AddOnScreenDebugMessage(-1,15.0f,FColor::Red,"FireProjectile1");
 	if (ProjectileClass && GetWorld()->TimeSeconds - LastFireTime >= FireRate)
 	{
+		GEngine->AddOnScreenDebugMessage(-1,15.0f,FColor::Red,"FireProjectile2");
 		FVector SpawnLocation = GetActorLocation() + FVector(100.f, 0.f, 0.f);
 		FRotator SpawnRotation = GetActorRotation();
 
