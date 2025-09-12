@@ -17,17 +17,21 @@ class SPACE_SHOOTER_API ASpaceShooterGameMode : public AGameModeBase
 public:
 	ASpaceShooterGameMode();
 
-protected:
-	// Score et vies du joueur
+protected: // Score et vies du joueur
+
+	//Maximum de points
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	int32 MaxScore;
 
+	//Initialisation des vies
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	int32 InitialLives;
 
+	//compteur de points
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gameplay")
 	int32 CurrentScore;
 
+	//compteur de vies
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gameplay")
 	int32 CurrentLives;
 

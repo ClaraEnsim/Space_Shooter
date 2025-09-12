@@ -3,6 +3,7 @@
 
 #include "Space_Shooter/Public/SpaceShooterGameMode.h"
 #include "Kismet/GameplayStatics.h"
+#include "SpaceShip.h"
 
 ASpaceShooterGameMode::ASpaceShooterGameMode()
 {
@@ -10,6 +11,8 @@ ASpaceShooterGameMode::ASpaceShooterGameMode()
 	InitialLives = 3;
 	CurrentScore = 0;
 	CurrentLives = InitialLives;
+	
+	DefaultPawnClass = ASpaceship::StaticClass();
 }
 
 void ASpaceShooterGameMode::AddPoint()
