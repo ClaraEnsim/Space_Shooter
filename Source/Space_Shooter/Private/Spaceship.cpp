@@ -15,16 +15,18 @@ ASpaceship::ASpaceship()
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
-	RootComponent = CollisionBox;
+	BoxCollision = CreateDefaultSubobject<UBoxComponent>("BoxCollision");
+	RootComponent = BoxCollision;
+
+	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
+	StaticMesh->SetupAttachment(BoxCollision);
 
 	
-	CollisionBox->SetCollisionProfileName(TEXT("Pawn"));
-	CollisionBox->SetGenerateOverlapEvents(true);
-
-	ShipMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ShipMesh"));
-	ShipMesh->SetupAttachment(RootComponent);
-	ShipMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	BoxCollision->SetCollisionProfileName(TEXT("Pawn"));
+	BoxCollision->SetGenerateOverlapEvents(true);
+	
+	StaticMesh->SetupAttachment(RootComponent);
+	StaticMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	MoveSpeed = 600.f;
 	FireRate = 0.25f;
@@ -33,7 +35,7 @@ ASpaceship::ASpaceship()
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
 
-	CollisionBox->OnComponentBeginOverlap.AddDynamic(this, &ASpaceship::OnBeginOverlap);
+	BoxCollision->OnComponentBeginOverlap.AddDynamic(this, &ASpaceship::OnBeginOverlap);
 }
 
 // Called when the game starts or when spawned
@@ -89,10 +91,9 @@ void ASpaceship::MoveRight(float Value)
 
 void ASpaceship::FireProjectile()
 {
-	GEngine->AddOnScreenDebugMessage(-1,15.0f,FColor::Red,"FireProjectile1");
 	if (ProjectileClass && GetWorld()->TimeSeconds - LastFireTime >= FireRate)
 	{
-		GEngine->AddOnScreenDebugMessage(-1,15.0f,FColor::Red,"FireProjectile2");
+		//GEngine->AddOnScreenDebugMessage(-1,15.0f,FColor::Red,"FireProjectile2");
 		FVector SpawnLocation = GetActorLocation() + FVector(100.f, 0.f, 0.f);
 		FRotator SpawnRotation = GetActorRotation();
 

@@ -36,6 +36,12 @@ protected: // Score et vies du joueur
 	int32 CurrentLives;
 
 public:
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	int32 GetPoint();
+
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	int32 GetPointLife();
+	
 	// Appelée quand une cible est détruite
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void AddPoint();

@@ -15,6 +15,16 @@ ASpaceShooterGameMode::ASpaceShooterGameMode()
 	DefaultPawnClass = ASpaceship::StaticClass();
 }
 
+int32 ASpaceShooterGameMode::GetPoint()
+{
+	return CurrentScore;
+}
+
+int32 ASpaceShooterGameMode::GetPointLife()
+{
+	return CurrentLives;
+}
+
 void ASpaceShooterGameMode::AddPoint()
 {
 	CurrentScore++;

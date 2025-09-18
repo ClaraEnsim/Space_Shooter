@@ -9,7 +9,7 @@
 AEnemySpawner::AEnemySpawner()
 {
 	PrimaryActorTick.bCanEverTick = false;
-	SpawnInterval = 3.f;
+	SpawnInterval = 1.f;
 }
 
 void AEnemySpawner::BeginPlay()
