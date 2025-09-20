@@ -5,67 +5,78 @@
 #include "Enemy.h"
 #include "Kismet/GameplayStatics.h"
 #include "BoundaryVolume.h"
-
+#include "Components/BoxComponent.h"
 
 // Sets default values
 AProjectile::AProjectile()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+    PrimaryActorTick.bCanEverTick = true;
 
-	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ProjectileMesh"));
-	RootComponent = ProjectileMesh;
+    // Collision = racine
+    BoxCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollision"));
+    RootComponent = BoxCollision;
 
-	ProjectileMesh->SetSimulatePhysics(false);
-	ProjectileMesh->SetCollisionProfileName("BlockAll");
+    BoxCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+    BoxCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 
-	ProjectileSpeed = 1000.f;
-	LifeTime = 3.f;
-	TimeLived = 0.f;
+    // Mesh attaché au collision
+    StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
+    StaticMesh->SetupAttachment(BoxCollision);
 
-	OnActorHit.AddDynamic(this, &AProjectile::OnHitEnemy);
+    ProjectileSpeed = 1000.f;
+    LifeTime = 3.f;
+    TimeLived = 0.f;
+
+    // Bind overlap
+    BoxCollision->OnComponentBeginOverlap.AddDynamic(this, &AProjectile::OnHitEnemy);
 }
 
-// Called when the game starts or when spawned
 void AProjectile::BeginPlay()
 {
-	Super::BeginPlay();
-	
+    Super::BeginPlay();
 }
 
-// Called every frame
 void AProjectile::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
+    Super::Tick(DeltaTime);
 
-	AddActorLocalOffset(FVector(ProjectileSpeed * DeltaTime, 0.f, 0.f), true);
+    // Déplacement constant vers l’avant
+    AddActorLocalOffset(FVector(ProjectileSpeed * DeltaTime, 0.f, 0.f), true);
 
-	TimeLived += DeltaTime;
-	if (TimeLived >= LifeTime)
-	{
-		Destroy();
-	}
+    TimeLived += DeltaTime;
+    if (TimeLived >= LifeTime)
+    {
+        Destroy();
+    }
 
-	ABoundaryVolume* Boundary = Cast<ABoundaryVolume>(
-		UGameplayStatics::GetActorOfClass(GetWorld(), ABoundaryVolume::StaticClass())
-	);
+    // Vérification hors limites
+    ABoundaryVolume* Boundary = Cast<ABoundaryVolume>(
+        UGameplayStatics::GetActorOfClass(GetWorld(), ABoundaryVolume::StaticClass())
+    );
 
-	if (Boundary && !Boundary->IsInsideBoundary(GetActorLocation()))
-	{
-		Destroy(); // supprime l'ennemi si sorti de la map
-	}
-
+    if (Boundary && !Boundary->IsInsideBoundary(GetActorLocation()))
+    {
+        Destroy();
+    }
 }
 
-void AProjectile::OnHitEnemy(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
+void AProjectile::OnHitEnemy(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+                             UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+                             bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor && OtherActor->ActorHasTag(TEXT("Enemy")))
-	{
-		if (AEnemy* Enemy = Cast<AEnemy>(OtherActor))
-		{
-			Enemy->OnHitByProjectile();
-		}
-		Destroy();
-	}
+    if (OtherActor && OtherActor->ActorHasTag(TEXT("Enemy")))
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Projectile touche l'ennemi"));
+
+        if (AEnemy* Enemy = Cast<AEnemy>(OtherActor))
+        {
+            Enemy->OnHitByProjectile();
+            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Asteroid détruit"));
+        }
+
+        Destroy(); // détruit le projectile seulement si c'est un ennemi
+    }
 }
+
+
 

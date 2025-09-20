@@ -5,6 +5,7 @@
 #include "SpaceShooterGameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "BoundaryVolume.h"
+#include "Components/BoxComponent.h"
 
 
 // Sets default values
@@ -13,11 +14,18 @@ AEnemy::AEnemy()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	EnemyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("EnemyMesh"));
-	RootComponent = EnemyMesh;
+	Tags.Add(TEXT("Enemy"));
 
-	EnemyMesh->SetSimulatePhysics(false);
-	EnemyMesh->SetCollisionProfileName("BlockAll");
+	BoxCollision = CreateDefaultSubobject<UBoxComponent>("BoxCollision");
+	RootComponent = BoxCollision;
+
+	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
+	StaticMesh->SetupAttachment(BoxCollision);
+
+	BoxCollision->SetSimulatePhysics(false);
+	BoxCollision->SetCollisionProfileName("OverlapAllDynamic");
+	BoxCollision->SetGenerateOverlapEvents(true);
+	
 
 	MoveSpeed = 200.f;
 }
@@ -50,6 +58,7 @@ void AEnemy::Tick(float DeltaTime)
 
 void AEnemy::OnHitByProjectile()
 {
+	GEngine->AddOnScreenDebugMessage(-1,15.0f,FColor::Red,"RentreFonctionEnemy");
 	if (ASpaceShooterGameMode* GM = Cast<ASpaceShooterGameMode>(UGameplayStatics::GetGameMode(this)))
 	{
 		GM->AddPoint();

@@ -16,11 +16,11 @@ public:
 	ASpaceship();
 
 protected:
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-	UStaticMeshComponent* ShipMesh;
-
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-	class UBoxComponent* CollisionBox;
+	UPROPERTY(VisibleAnywhere)
+	class UBoxComponent* BoxCollision;
+                    
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UStaticMeshComponent* StaticMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float MoveSpeed;

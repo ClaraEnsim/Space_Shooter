@@ -16,8 +16,12 @@ public:
 	AEnemy();
 
 protected:
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-	UStaticMeshComponent* EnemyMesh;
+
+	UPROPERTY(VisibleAnywhere)
+	class UBoxComponent* BoxCollision;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UStaticMeshComponent* StaticMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float MoveSpeed;
