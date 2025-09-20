@@ -1,9 +1,10 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Space_Shooter/Public/SpaceShooterGameMode.h"
+#include "SpaceShooterGameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "SpaceShip.h"
+#include "Blueprint/UserWidget.h"
 
 ASpaceShooterGameMode::ASpaceShooterGameMode()
 {
@@ -11,24 +12,20 @@ ASpaceShooterGameMode::ASpaceShooterGameMode()
 	InitialLives = 3;
 	CurrentScore = 0;
 	CurrentLives = InitialLives;
-	
+	bGameOver = false;
+
 	DefaultPawnClass = ASpaceship::StaticClass();
+	CurrentWidget = nullptr;
 }
 
-int32 ASpaceShooterGameMode::GetPoint()
-{
-	return CurrentScore;
-}
-
-int32 ASpaceShooterGameMode::GetPointLife()
-{
-	return CurrentLives;
-}
+int32 ASpaceShooterGameMode::GetPoint() { return CurrentScore; }
+int32 ASpaceShooterGameMode::GetPointLife() { return CurrentLives; }
 
 void ASpaceShooterGameMode::AddPoint()
 {
-	CurrentScore++;
+	if (bGameOver) return;
 
+	CurrentScore++;
 	if (CurrentScore >= MaxScore)
 	{
 		CheckGameOver();
@@ -37,8 +34,9 @@ void ASpaceShooterGameMode::AddPoint()
 
 void ASpaceShooterGameMode::LoseLife()
 {
-	CurrentLives--;
+	if (bGameOver) return;
 
+	CurrentLives--;
 	if (CurrentLives <= 0)
 	{
 		CheckGameOver();
@@ -47,15 +45,53 @@ void ASpaceShooterGameMode::LoseLife()
 
 void ASpaceShooterGameMode::CheckGameOver()
 {
-	if (CurrentScore >= MaxScore)
+	APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
+	bGameOver = true;
+
+	if (PC && PC->GetPawn())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Victoire ! Score atteint."));
-		// TODO : déclencher un écran de victoire via Blueprint ou HUD
+		PC->GetPawn()->DisableInput(PC);
+		PC->bShowMouseCursor = true;
 	}
-	else if (CurrentLives <= 0)
+
+	if (CurrentScore >= MaxScore && VictoryScreenClass)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Game Over ! Plus de vies."));
-		// TODO : déclencher un écran de défaite via Blueprint ou HUD
+		CurrentWidget = CreateWidget<UUserWidget>(GetWorld(), VictoryScreenClass);
+		if (CurrentWidget) CurrentWidget->AddToViewport();
+	}
+	else if (CurrentLives <= 0 && GameOverScreenClass)
+	{
+		CurrentWidget = CreateWidget<UUserWidget>(GetWorld(), GameOverScreenClass);
+		if (CurrentWidget) CurrentWidget->AddToViewport();
+	}
+}
+
+void ASpaceShooterGameMode::ResetGame()
+{
+	// Supprimer le widget
+	if (CurrentWidget)
+	{
+		CurrentWidget->RemoveFromParent();
+		CurrentWidget = nullptr;
+	}
+
+	// Réinitialiser les compteurs
+	CurrentScore = 0;
+	CurrentLives = InitialLives;
+	bGameOver = false;
+
+	// Réactiver l’input du joueur
+	APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
+	if (PC && PC->GetPawn())
+	{
+		PC->GetPawn()->EnableInput(PC);
+		PC->bShowMouseCursor = false;
+	}
+
+	// Optionnel : repositionner le joueur et respawner les ennemis
+	if (ASpaceship* Ship = Cast<ASpaceship>(PC->GetPawn()))
+	{
+		Ship->SetActorLocation(FVector::ZeroVector); // ou ta position de départ
 	}
 }
 
