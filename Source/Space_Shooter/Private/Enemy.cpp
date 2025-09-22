@@ -58,7 +58,6 @@ void AEnemy::Tick(float DeltaTime)
 
 void AEnemy::OnHitByProjectile()
 {
-	GEngine->AddOnScreenDebugMessage(-1,15.0f,FColor::Red,"RentreFonctionEnemy");
 	if (ASpaceShooterGameMode* GM = Cast<ASpaceShooterGameMode>(UGameplayStatics::GetGameMode(this)))
 	{
 		GM->AddPoint();
