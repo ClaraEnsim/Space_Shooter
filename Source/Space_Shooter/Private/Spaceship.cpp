@@ -28,7 +28,7 @@ ASpaceship::ASpaceship()
 	StaticMesh->SetupAttachment(RootComponent);
 	StaticMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	MoveSpeed = 700.f;
+	MoveSpeed = 600.f;
 	FireRate = 0.25f;
 	LastFireTime = -FireRate;
 
