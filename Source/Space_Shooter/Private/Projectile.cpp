@@ -66,12 +66,10 @@ void AProjectile::OnHitEnemy(UPrimitiveComponent* OverlappedComp, AActor* OtherA
 {
     if (OtherActor && OtherActor->ActorHasTag(TEXT("Enemy")))
     {
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Projectile touche l'ennemi"));
 
         if (AEnemy* Enemy = Cast<AEnemy>(OtherActor))
         {
             Enemy->OnHitByProjectile();
-            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Asteroid détruit"));
         }
 
         Destroy(); // détruit le projectile seulement si c'est un ennemi
